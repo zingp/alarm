@@ -1,0 +1,46 @@
+domain: push-android.shouji.sogou.com.cn
+hosts: [10.154.137.59,10.154.137.61,10.154.137.79,10.154.137.132,10.154.137.147,10.154.137.153,10.154.137.165,10.154.137.217,10.154.137.99]
+rules:
+    data:
+      minute: 3
+      freq: 3
+      ring: 1
+      sign: ">"
+      condition: 20
+    redis:
+      minute: 3
+      freq: 3
+      ring: 1
+      sign: ">"
+      condition: 1
+    upgrade:
+      minute: 3
+      freq: 3
+      ring: 1
+      sign: ">"
+      condition: 10
+    checkMess:
+      minute: 3
+      freq: 3
+      ring: 1
+      sign: ">"
+      condition: 1
+    upMess:
+      minute: 3
+      freq: 3
+      ring: 1
+      sign: ">"
+      condition: 1
+    sendMess:
+      minute: 3
+      freq: 3
+      ring: 1
+      sign: ">"
+      condition: 1
+    other:
+      minute: 3
+      freq: 3
+      ring: 1
+      sign: ">"
+      condition: 10
+mail: [liuyouyuan@sogou-inc.com,]
