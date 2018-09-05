@@ -75,6 +75,3 @@ func stringToMap(s string) (m map[string]string){
 	}
 	return
 }
-
-
-
