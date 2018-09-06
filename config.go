@@ -11,7 +11,8 @@ type Rule struct {
 	Minute int `yaml:"minute"`
 	Freq  int `yaml:"freq"`
 	Ring  int `yaml:"ring"`
-	Condition  string `yaml:"condition"`
+	Sign string `yaml:"sign"`
+	Condition  int `yaml:"condition"`
 }
 
 type Yaml struct {

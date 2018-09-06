@@ -61,7 +61,8 @@ func sendMail() {
 	body := fmt.Sprintf(htm, "Tcloud proc relaod", "abc.com","10.134.239.239","cont")
 	mode := "html"
 	
-	url := fmt.Sprintf(api, frName, frAddr,maillist,title, body,mode)
+	// url := fmt.Sprintf(api, frName, frAddr,maillist,title, body,mode)
+	url := fmt.Sprintf(api, frName, frAddr,title, body,mode,maillist)
 	log.Println(url)
 	ret, err := http.Get(url)
 	if err != nil {

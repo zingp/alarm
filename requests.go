@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"log"
 	"strings"
 	"net/http"
@@ -20,6 +21,7 @@ import (
 proc [name=%s,cont=%s]
 */
 
+var alarmChan = make(chan *alarmMail, 10)
 func requestGet(url string)(result string, err error){
 	res, err := http.Get(url)
 	if err != nil {
@@ -27,7 +29,7 @@ func requestGet(url string)(result string, err error){
 		return
 	}
 	if res.Status != string(200) {
-		log.Printf("http get not 200.code=%d, detail=%s", res.Status, string(res.Body))
+		log.Printf("http get not 200.code=%s, detail=%v", res.Status, res.Body)
 		return
 	}
 	data, err := ioutil.ReadAll(res.Body)
@@ -82,21 +84,21 @@ func stringToMap(s string) (m map[string]string){
 }
 
 func getAgentDate(){
-	for k, v := range configMap {
+	for _, v := range configMap {
 		if len(v.Hosts) == 0 {
 			continue
 		}
 
 		for _, ip := range v.Hosts {
 			// 应该使用协程
-			url := fmt.Sprintf(reqUrl, ip)
+			handleData(ip, v)
 			// go ------
 			
 		}
 	}
 }
 
-func handleDate(ip string, c *Yaml) {
+func handleData(ip string, c *Yaml) {
 	url := fmt.Sprintf(reqUrl, ip)
 	data, err := requestGet(url)
 	if err != nil {
@@ -111,11 +113,52 @@ func handleDate(ip string, c *Yaml) {
 	if len(procMap) != 0 {
 		title := "Tcloud proc relaod"
 		maillistStr := strings.Join(c.Maillist, ";")
+		// 这里需要补充，并完善报警接口
 		alarmMailObj := &alarmMail {
 			api:appConf.mailApi,
 			frName:appConf.frName,
 			frAddr:appConf.frAddr,
 			maillist: maillistStr,
+			title:title,
+		}
+
+		alarmChan <- alarmMailObj
+	}
+
+	itemMap := analysis(data, "items")
+	if len(itemMap) == 0 {
+		return
+	}
+	for k, v := range itemMap {
+		intV, err := strconv.Atoi(v)
+		if err != nil {
+			log.Printf("strconv string to int error:%v", err)
+			continue
+		}
+		ok := judge(c, k, intV)
+		if ok {
+			// 告警结构体；
+			// 添加ip等操作
 		}
 	}
+}
+
+func judge(c *Yaml, k string, v int) bool {
+	value, ok := c.Rules[k]
+	if !ok {
+		return false
+	}
+	switch {
+	case value.Sign == ">":
+		if v >= value.Condition {
+			return true
+		}
+		return false
+	case value.Sign == "<": 
+		if v <= value.Condition {
+			return true
+		}
+		return false
+	}
+	return false
 }
