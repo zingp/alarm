@@ -42,8 +42,6 @@ func main() {
 	// 2018/09/04 18:06:37.998 [I] items [upgrade=1,]`
 	// analysis(s, "proc")
 	sendMail()
-	
-	
 }
 
 
