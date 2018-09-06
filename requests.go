@@ -99,7 +99,7 @@ func getAgentDate(){
 }
 
 func handleData(ip string, c *Yaml) {
-	url := fmt.Sprintf(reqUrl, ip)
+	url := fmt.Sprintf(appConf.reqUrl, ip)
 	data, err := requestGet(url)
 	if err != nil {
 		log.Printf("http get error:%v", err)
