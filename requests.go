@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"strings"
 	"net/http"
 	"io/ioutil"
@@ -23,6 +24,10 @@ func requestGet(url string)(result string, err error){
 	res, err := http.Get(url)
 	if err != nil {
 		fmt.Println(" http get error:", err)
+		return
+	}
+	if res.Status != string(200) {
+		log.Printf("http get not 200.code=%d, detail=%s", res.Status, string(res.Body))
 		return
 	}
 	data, err := ioutil.ReadAll(res.Body)
@@ -74,4 +79,43 @@ func stringToMap(s string) (m map[string]string){
 		}
 	}
 	return
+}
+
+func getAgentDate(){
+	for k, v := range configMap {
+		if len(v.Hosts) == 0 {
+			continue
+		}
+
+		for _, ip := range v.Hosts {
+			// 应该使用协程
+			url := fmt.Sprintf(reqUrl, ip)
+			// go ------
+			
+		}
+	}
+}
+
+func handleDate(ip string, c *Yaml) {
+	url := fmt.Sprintf(reqUrl, ip)
+	data, err := requestGet(url)
+	if err != nil {
+		log.Printf("http get error:%v", err)
+		return
+	}
+	if len(data) == 0 {
+		return
+	}
+
+	procMap := analysis(data, "proc")
+	if len(procMap) != 0 {
+		title := "Tcloud proc relaod"
+		maillistStr := strings.Join(c.Maillist, ";")
+		alarmMailObj := &alarmMail {
+			api:appConf.mailApi,
+			frName:appConf.frName,
+			frAddr:appConf.frAddr,
+			maillist: maillistStr,
+		}
+	}
 }
