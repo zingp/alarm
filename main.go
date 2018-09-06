@@ -1,19 +1,19 @@
 package main
 
-import(
+import (
 	"log"
 )
 
 type AppConf struct {
-	reqUrl string
+	reqUrl  string
 	mailApi string
-	frName string
-	frAddr string
-	mode string
+	frName  string
+	frAddr  string
+	mode    string
 }
 
 var configMap map[string]*Yaml
-var appConf AppConf 
+var appConf AppConf
 
 func main() {
 	// url := "http://127.0.0.1:9090/items"
@@ -43,5 +43,3 @@ func main() {
 	// analysis(s, "proc")
 	sendMail()
 }
-
-

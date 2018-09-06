@@ -1,14 +1,14 @@
 package main
 
 import (
-	"strconv"
-	"log"
-	"strings"
-	"net/http"
-	"io/ioutil"
 	"fmt"
-	"time"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"regexp"
+	"strconv"
+	"strings"
+	"time"
 )
 
 /*
@@ -22,7 +22,8 @@ proc [name=%s,cont=%s]
 */
 
 var alarmChan = make(chan *alarmMail, 10)
-func requestGet(url string)(result string, err error){
+
+func requestGet(url string) (result string, err error) {
 	res, err := http.Get(url)
 	if err != nil {
 		fmt.Println(" http get error:", err)
@@ -41,14 +42,14 @@ func requestGet(url string)(result string, err error){
 	return
 }
 
-func getPart(item string)(part string) {
+func getPart(item string) (part string) {
 	partStr := `%s(?P<part1>.+) %s \[(?P<part2>.+)\]`
 	timeMinStr := time.Now().Format("2006/01/02 15:04")
 	part = fmt.Sprintf(partStr, timeMinStr, item)
-	return 
+	return
 }
 
-func analysis(s string, p string)(m map[string]string){
+func analysis(s string, p string) (m map[string]string) {
 	m = make(map[string]string, 5)
 	lineSlice := strings.Split(s, "\n")
 	part := getPart(p)
@@ -63,7 +64,7 @@ func analysis(s string, p string)(m map[string]string){
 	return
 }
 
-func stringToMap(s string) (m map[string]string){
+func stringToMap(s string) (m map[string]string) {
 	m = make(map[string]string, 5)
 	newStr := strings.TrimSpace(s)
 	kvSlice := strings.Split(newStr, ",")
@@ -73,7 +74,7 @@ func stringToMap(s string) (m map[string]string){
 			continue
 		}
 		subKvSlice := strings.Split(trimV, "=")
-		
+
 		if len(subKvSlice) == 2 {
 			mapK := strings.TrimSpace(subKvSlice[0])
 			mapV := strings.TrimSpace(subKvSlice[1])
@@ -83,7 +84,7 @@ func stringToMap(s string) (m map[string]string){
 	return
 }
 
-func getAgentDate(){
+func getAgentDate() {
 	for _, v := range configMap {
 		if len(v.Hosts) == 0 {
 			continue
@@ -93,7 +94,7 @@ func getAgentDate(){
 			// 应该使用协程
 			handleData(ip, v)
 			// go ------
-			
+
 		}
 	}
 }
@@ -114,12 +115,12 @@ func handleData(ip string, c *Yaml) {
 		title := "Tcloud proc relaod"
 		maillistStr := strings.Join(c.Maillist, ";")
 		// 这里需要补充，并完善报警接口
-		alarmMailObj := &alarmMail {
-			api:appConf.mailApi,
-			frName:appConf.frName,
-			frAddr:appConf.frAddr,
+		alarmMailObj := &alarmMail{
+			api:      appConf.mailApi,
+			frName:   appConf.frName,
+			frAddr:   appConf.frAddr,
 			maillist: maillistStr,
-			title:title,
+			title:    title,
 		}
 
 		alarmChan <- alarmMailObj
@@ -154,7 +155,7 @@ func judge(c *Yaml, k string, v int) bool {
 			return true
 		}
 		return false
-	case value.Sign == "<": 
+	case value.Sign == "<":
 		if v <= value.Condition {
 			return true
 		}

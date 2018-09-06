@@ -1,37 +1,38 @@
 package main
+
 import (
-	"path"
-	"io/ioutil"
 	yaml "gopkg.in/yaml.v2"
+	"io/ioutil"
 	"log"
+	"path"
 	"strings"
 )
 
 type Rule struct {
-	Minute int `yaml:"minute"`
-	Freq  int `yaml:"freq"`
-	Ring  int `yaml:"ring"`
-	Sign string `yaml:"sign"`
-	Condition  int `yaml:"condition"`
+	Minute    int    `yaml:"minute"`
+	Freq      int    `yaml:"freq"`
+	Ring      int    `yaml:"ring"`
+	Sign      string `yaml:"sign"`
+	Condition int    `yaml:"condition"`
 }
 
 type Yaml struct {
-	Domain string  `yaml:"domain"` 
-	Hosts []string `yaml:"hosts"`
-	Rules map[string]Rule `yaml:"rules"`
-	Maillist []string `yaml:"maillist"`
+	Domain   string          `yaml:"domain"`
+	Hosts    []string        `yaml:"hosts"`
+	Rules    map[string]Rule `yaml:"rules"`
+	Maillist []string        `yaml:"maillist"`
 }
 
-func getYamlList(dir string)(fileSlice []string, err error){
+func getYamlList(dir string) (fileSlice []string, err error) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		log.Printf("read dir error:%v", err)
 		return
 	}
-	for _,file := range files {
+	for _, file := range files {
 		if file.IsDir() {
 			continue
-		} 
+		}
 		if strings.HasSuffix(file.Name(), ".yaml") {
 			fileSlice = append(fileSlice, file.Name())
 			continue
@@ -40,23 +41,22 @@ func getYamlList(dir string)(fileSlice []string, err error){
 	return
 }
 
-
 func loadYaml(file string) (conf *Yaml, err error) {
 	conf = new(Yaml)
-    yamlFile, err := ioutil.ReadFile(file)
-    if err != nil {
+	yamlFile, err := ioutil.ReadFile(file)
+	if err != nil {
 		log.Printf("parse yaml file error:%v ", err)
 		return
-    }
-    err = yaml.Unmarshal(yamlFile, &conf)
-    if err != nil {
+	}
+	err = yaml.Unmarshal(yamlFile, &conf)
+	if err != nil {
 		log.Printf("Unmarshal: %v", err)
 		return
-    }
-	return 
+	}
+	return
 }
 
-func initConfigMap(dir string)(err error){
+func initConfigMap(dir string) (err error) {
 	fileList, err := getYamlList(dir)
 	if err != nil {
 		log.Printf("get yaml list error:%v", err)
@@ -77,4 +77,3 @@ func initConfigMap(dir string)(err error){
 	}
 	return
 }
-

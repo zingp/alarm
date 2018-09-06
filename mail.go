@@ -1,33 +1,31 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/axgle/mahonia"
 	"log"
 	"net/http"
-	"io/ioutil"
-	"strings"
-	"regexp"
-	"errors"
-	"github.com/axgle/mahonia"
 	"net/url"
+	"regexp"
+	"strings"
 )
 
 var emailURL = "http://mail.portal.sogou/portal/tools/send_mail.php"
+
 type alarmMail struct {
-	api string
-	frName string
-	frAddr string
+	api      string
+	frName   string
+	frAddr   string
 	maillist string
-	title string
-	body string
-	mode string
-	attname string
-	attbody string
+	title    string
+	body     string
+	mode     string
+	attname  string
+	attbody  string
 }
 
-func (a *alarmMail)sendMailGet()(resp *http.Response, err error){
+func (a *alarmMail) sendMailGet() (resp *http.Response, err error) {
 	url := fmt.Sprintf(a.api, a.frName, a.frAddr, a.maillist, a.title, a.body, a.mode, a.attname, a.attbody)
 	resp, err = http.Get(url)
 	if err != nil {
@@ -38,14 +36,14 @@ func (a *alarmMail)sendMailGet()(resp *http.Response, err error){
 
 func sendMail() {
 	/*
-	fr_name - 发信人姓名
-	fr_addr - 发信人email
-	title - 邮件标题
-	body - 邮件内容
-	mode - 邮件类型，html或txt
-	maillist - 收信人邮箱，多个邮箱用";"分隔
-	attname - 附件文件名
-	attbody - 附件正文*/
+		fr_name - 发信人姓名
+		fr_addr - 发信人email
+		title - 邮件标题
+		body - 邮件内容
+		mode - 邮件类型，html或txt
+		maillist - 收信人邮箱，多个邮箱用";"分隔
+		attname - 附件文件名
+		attbody - 附件正文*/
 	htm := `<!DOCTYPE html>
 	<html lang="en">
 	<head>
@@ -62,8 +60,8 @@ func sendMail() {
 	frAddr := "dt_op@sogou-inc.com"
 	maillist := "liuyouyuan@sogou-inc.com"
 	title := "title"
-	body := fmt.Sprintf(htm, "Tcloud proc relaod", "abc.com","10.134.239.239","cont")
-	
+	body := fmt.Sprintf(htm, "Tcloud proc relaod", "abc.com", "10.134.239.239", "cont")
+
 	r, _ := EmailSend(maillist, body, frName, frAddr, title)
 	fmt.Println("sendmail:", r)
 }

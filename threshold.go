@@ -1,24 +1,23 @@
 package main
 
 import (
-	"time"
 	"sync"
+	"time"
 )
 
 type AlarmMap struct {
-	lock sync.Mutex
+	lock       sync.Mutex
 	dataStatus map[string]DataStatus
 }
 
 type AlarmRule struct {
-	ipSilice []string
+	ipSilice  []string
 	alarmNume int
 	alarmTime time.Duration
 }
 
 type DataStatus struct {
-	domain string
+	domain   string
 	hostsNum int
-	rules []map[string]AlarmRule
+	rules    []map[string]AlarmRule
 }
-
