@@ -111,22 +111,27 @@ func handleData(ip string, c *Yaml) {
 	}
 
 	procMap := analysis(data, "proc")
+	itemMap := analysis(data, "items")
+
 	if len(procMap) != 0 {
 		title := "Tcloud proc relaod"
 		maillistStr := strings.Join(c.Maillist, ";")
+		proc := procMap["name"]
+		cont := procMap["cont"]
+		rule := fmt.Sprintf("过去1分钟有进程[%s]被重启", proc)
+		body := fmt.Sprintf(htmlBody, rule, c.Domain, ip, cont)
 		// 这里需要补充，并完善报警接口
 		alarmMailObj := &alarmMail{
-			api:      appConf.mailApi,
 			frName:   appConf.frName,
 			frAddr:   appConf.frAddr,
 			maillist: maillistStr,
 			title:    title,
+			body:     body,
+			mode:     "html",
 		}
-
 		alarmChan <- alarmMailObj
 	}
 
-	itemMap := analysis(data, "items")
 	if len(itemMap) == 0 {
 		return
 	}

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/axgle/mahonia"
-	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -12,9 +11,20 @@ import (
 )
 
 var emailURL = "http://mail.portal.sogou/portal/tools/send_mail.php"
+var htmlBody = `<!DOCTYPE html>
+				<html lang="en">
+				<head>
+					<meta charset="UTF-8">
+				</head>
+				<body>
+					<p>Title:%s</p>
+					<p>Domain:%s</p>
+					<p>IP:%s</p>
+					<p>Detail:%s</p>
+				</body>
+				</html>`
 
 type alarmMail struct {
-	api      string
 	frName   string
 	frAddr   string
 	maillist string
@@ -25,13 +35,33 @@ type alarmMail struct {
 	attbody  string
 }
 
-func (a *alarmMail) sendMailGet() (resp *http.Response, err error) {
-	url := fmt.Sprintf(a.api, a.frName, a.frAddr, a.maillist, a.title, a.body, a.mode, a.attname, a.attbody)
-	resp, err = http.Get(url)
-	if err != nil {
-		log.Printf("http error:%v", err)
+func (a alarmMail) MailSend() (bool, error) {
+	if _, err := checkEmail(a.maillist); err != nil {
+		return false, err
 	}
-	return
+
+	enc := mahonia.NewEncoder("GB18030")
+	req, _ := url.Parse(emailURL)
+	q := req.Query()
+	q.Add("fr_name", a.frName)
+	q.Add("fr_addr", a.frAddr)
+	q.Add("title", enc.ConvertString(a.title))
+	q.Add("body", enc.ConvertString(a.body))
+	q.Add("mode", a.mode)
+	q.Add("maillist", a.maillist)
+	q.Add("attname", a.attname)
+	q.Add("attbody", a.attbody)
+	req.RawQuery = q.Encode()
+	resp, err := http.Get(req.String())
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close() // email body为空
+
+	if resp.StatusCode != 200 {
+		return false, errors.New("Email Send failed")
+	}
+	return true, nil
 }
 
 func sendMail() {
