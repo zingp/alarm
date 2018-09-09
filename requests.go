@@ -144,7 +144,7 @@ func handleData(ip string, c *Yaml) {
 		ok := judge(c, k, intV)
 		if ok {
 			// 告警结构体；
-			// 添加ip等操作
+			// 添加ip等操作git
 		}
 	}
 }
