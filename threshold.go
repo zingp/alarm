@@ -97,3 +97,15 @@ func (ips *IPStatus)Sub(ip string, rule string) error {
 	}
 	return errors.New("ip 不存在")
 }
+
+func (ips *IPStatus)Zero(ip string, rule string) error {
+	ips.lock.Lock()
+	ips.lock.Unlock()
+	if v, ok := ips.ipMap[ip]; ok {
+		v[rule] == 0
+		return nil
+	}
+	return errors.New("ip 不存在")
+}
+
+

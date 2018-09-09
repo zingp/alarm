@@ -100,6 +100,8 @@ func getAgentDate() {
 }
 
 func handleData(ip string, c *Yaml) {
+	maillistStr := strings.Join(c.Maillist, ";")
+
 	url := fmt.Sprintf(appConf.reqUrl, ip)
 	data, err := requestGet(url)
 	if err != nil {
@@ -115,7 +117,6 @@ func handleData(ip string, c *Yaml) {
 
 	if len(procMap) != 0 {
 		title := "Tcloud proc relaod"
-		maillistStr := strings.Join(c.Maillist, ";")
 		proc := procMap["name"]
 		cont := procMap["cont"]
 		rule := fmt.Sprintf("过去1分钟有进程[%s]被重启", proc)
@@ -141,30 +142,66 @@ func handleData(ip string, c *Yaml) {
 			log.Printf("strconv string to int error:%v", err)
 			continue
 		}
-		ok := judge(c, k, intV)
+		r, ok := judge(c, k, intV)
+		// 如果该ip的某个规则满足告警条件
+		v1, ok1 := ipStatus.ipMap[ip][r]
 		if ok {
-			// 告警结构体；
-			// 添加ip等操作git
+			if !ok1 {
+				continue
+			}
+
+			if v1 >= (c.Rules[k].Freq -1) {
+				// alarm
+				title := fmt.Sprintf("日志监控告警%s", r)
+				body := fmt.Sprintf(htmlBody, r, c.Domain, ip, v)
+				alarmMailObj := &alarmMail{
+					frName:   appConf.frName,
+					frAddr:   appConf.frAddr,
+					maillist: maillistStr,
+					title:    title,
+					body:     body,
+					mode:     "html",
+				}
+				alarmChan <- alarmMailObj
+			}
+			ipStatus.Add(ip, r)
+			continue
 		}
+		if v1 >= (c.Rules[k].Freq -1) {
+			title := fmt.Sprintf("日志监控告警恢复%s", r)
+				body := fmt.Sprintf(htmlBody, r, c.Domain, ip, v)
+				alarmMailObj := &alarmMail{
+					frName:   appConf.frName,
+					frAddr:   appConf.frAddr,
+					maillist: maillistStr,
+					title:    title,
+					body:     body,
+					mode:     "html",
+				}
+				alarmChan <- alarmMailObj
+				ipStatus.Add(ip, r)
+			// 告警恢复
+		}
+		ipStatus.Zero(ip, r)
 	}
 }
 
-func judge(c *Yaml, k string, v int) bool {
+func judge(c *Yaml, k string, v int) (r string, b bool) {
 	value, ok := c.Rules[k]
+	r = fmt.Sprintf("%s%s%d", k, value.Sign, value.Condition)
+	b =  false
 	if !ok {
-		return false
+		return 
 	}
 	switch {
 	case value.Sign == ">":
 		if v >= value.Condition {
-			return true
+			b = true
 		}
-		return false
 	case value.Sign == "<":
 		if v <= value.Condition {
-			return true
+			b = true
 		}
-		return false
 	}
-	return false
+	return 
 }
