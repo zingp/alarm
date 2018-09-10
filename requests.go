@@ -182,7 +182,10 @@ func handleData(ip string, c *Yaml) {
 				ipStatus.Add(ip, r)
 			// 告警恢复
 		}
-		ipStatus.Zero(ip, r)
+		err = ipStatus.Zero(ip, r)
+		if err != nil {
+			continue
+		}
 	}
 }
 
