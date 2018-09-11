@@ -11,16 +11,6 @@ import (
 	"time"
 )
 
-/*
-2018/09/03 15:36:24.145 [I] items [upgrade=2,]
-2018/09/03 15:46:28.149 [I] items [upgrade=1,]
-2018/09/03 16:01:05.874 [I] items [upgrade=1,]
-2018/09/03 16:32:02.983 [I] items [upgrade=1,]
-2018/09/03 16:37:37.998 [I] items [upgrade=1,]
-
-proc [name=%s,cont=%s]
-*/
-
 var alarmChan = make(chan *alarmMail, 10)
 
 func requestGet(url string) (result string, err error) {
@@ -102,7 +92,7 @@ func getAgentDate() {
 func handleData(ip string, c *Yaml) {
 	maillistStr := strings.Join(c.Maillist, ";")
 
-	url := fmt.Sprintf(appConf.reqUrl, ip)
+	url := fmt.Sprintf(appConf.reqURL, ip)
 	data, err := requestGet(url)
 	if err != nil {
 		log.Printf("http get error:%v", err)

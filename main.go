@@ -5,8 +5,8 @@ import (
 )
 
 type AppConf struct {
-	reqUrl  string
-	mailApi string
+	reqURL  string
+	mailAPI string
 	frName  string
 	frAddr  string
 	mode    string
